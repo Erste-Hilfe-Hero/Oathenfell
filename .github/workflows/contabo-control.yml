@@ -1,0 +1,30 @@
+name: Contabo Control
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  control:
+    if: >
+      github.event.issue.user.login == 'Erste-Hilfe-Hero' &&
+      startsWith(github.event.issue.title, '[contabo]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute Contabo command
+        env:
+          CONTABO_CLIENT_ID: ${{ secrets.CONTABO_CLIENT_ID }}
+          CONTABO_CLIENT_SECRET: ${{ secrets.CONTABO_CLIENT_SECRET }}
+          CONTABO_API_USER: ${{ secrets.CONTABO_API_USER }}
+          CONTABO_API_PASSWORD: ${{ secrets.CONTABO_API_PASSWORD }}
+          CONTABO_COMMAND: ${{ github.event.issue.body }}
+        run: node tools/contabo-control.mjs
